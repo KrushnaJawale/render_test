@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Flask Tic-Tac-Toe</title>
+<style>
+body {
+font-family: 'Arial', sans-serif;
+display: flex;
+flex-direction: column;
+align-items: center;
+justify-content: center;
+min-height: 100vh;
+background-color: #f0f2f5;
+color: #333;
+margin: 0;
+padding: 20px;
+}
+
+    .container {
+        background-color: #fff;
+        padding: 30px;
+        border-radius: 12px;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        text-align: center;
+    }
+
+    h1 {
+        color: #4CAF50;
+        margin-bottom: 10px;
+    }
+
+    #status {
+        font-size: 1.5em;
+        font-weight: bold;
+        margin-bottom: 20px;
+        height: 30px; /* Ensure space is reserved */
+        color: #007bff;
+    }
+    
+    #status.winner-x { color: #f44336; } /* Red for X win */
+    #status.winner-o { color: #2196f3; } /* Blue for O win */
+    #status.draw { color: #ff9800; } /* Orange for Draw */
+
+    .board {
+        display: grid;
+        grid-template-columns: repeat(3, 100px);
+        grid-template-rows: repeat(3, 100px);
+        gap: 5px;
+        margin-bottom: 20px;
+        background-color: #ccc;
+        border: 5px solid #ccc;
+        border-radius: 8px;
+    }
+
+    .cell {
+        background-color: #fff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 3em;
+        font-weight: 700;
+        cursor: pointer;
+        transition: background-color 0.2s, transform 0.1s;
+        border-radius: 4px;
+    }
+
+    .cell:hover:not([data-mark]):not(.disabled) {
+        background-color: #e0e0e0;
+    }
+
+    .cell[data-mark="X"] { color: #f44336; }
+    .cell[data-mark="O"] { color: #2196f3; }
+    .cell.disabled { cursor: default; }
+
+    .reset-button {
+        padding: 10px 20px;
+        font-size: 1.1em;
+        background-color: #4CAF50;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: background-color 0.3s ease, box-shadow 0.3s ease;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .reset-button:hover {
+        background-color: #45a049;
+        box-shadow: 0 6px 10px rgba(0, 0, 0, 0.15);
+    }
+    
+    /* Mobile adjustments */
+    @media (max-width: 400px) {
+        .board {
+            grid-template-columns: repeat(3, 80px);
+            grid-template-rows: repeat(3, 80px);
+        }
+        .cell {
+            font-size: 2.5em;
+        }
+        .container {
+            padding: 15px;
+        }
+        #status {
+            font-size: 1.2em;
+        }
+    }
+</style>
+
+
+</head>
+<body>
+<div class="container">
+<h1>Tic-Tac-Toe</h1>
+
+    <!-- Status message area -->
+    <div id="status">It is X's turn to move.</div>
+
+    <!-- The 3x3 game board -->
+    <div class="board" id="board">
+        {% for mark in game.board %}
+            <div class="cell" data-index="{{ loop.index0 }}" data-mark="{{ mark if mark != '' else '' }}">
+                {{ mark }}
+            </div>
+        {% endfor %}
+    </div>
+
+    <!-- Reset Button -->
+    <form method="POST" action="/reset">
+        <button type="submit" class="reset-button">Reset Game</button>
+    </form>
+</div>
+
+<script>
+    const boardElement = document.getElementById('board');
+    const statusElement = document.getElementById('status');
+    const cells = document.querySelectorAll('.cell');
+    const isGameOver = {{ game.game_over | tojson }};
+
+    // Initialize board display on page load based on Flask session data
+    cells.forEach(cell => {
+        const mark = cell.getAttribute('data-mark');
+        if (mark) {
+            cell.textContent = mark;
+            cell.classList.add('disabled');
+        }
+    });
+
+    function updateStatus(winner, currentPlayer) {
+        statusElement.className = ''; // Clear previous classes
+
+        if (winner === 'Draw') {
+            statusElement.textContent = "It's a DRAW!";
+            statusElement.classList.add('draw');
+        } else if (winner) {
+            statusElement.textContent = `Player ${winner} WINS!`;
+            statusElement.classList.add(winner === 'X' ? 'winner-x' : 'winner-o');
+        } else {
+            statusElement.textContent = `It is ${currentPlayer}'s turn to move.`;
+        }
+    }
+
+    // Set initial status based on the data passed from Python
+    updateStatus("{{ game.winner if game.winner else '' }}", "{{ game.current_player }}");
+    
+    // Disable board interaction if the game is over
+    if (isGameOver) {
+        cells.forEach(cell => cell.classList.add('disabled'));
+    }
+
+    // --- Event Listener for Moves ---
+    boardElement.addEventListener('click', async (event) => {
+        const cell = event.target;
+        
+        // Check if the clicked element is a cell, and if it's empty and the game is not over
+        if (cell.classList.contains('cell') && !cell.classList.contains('disabled')) {
+            const cellIndex = cell.getAttribute('data-index');
+
+            try {
+                const response = await fetch('/move', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ cell_index: cellIndex })
+                });
+
+                // Handle success response from Flask
+                if (response.ok) {
+                    const data = await response.json();
+                    const lastPlayer = data.current_player === 'X' ? 'O' : 'X'; // The player who just moved
+                    
+                    // 1. Update the clicked cell in the UI
+                    cell.textContent = lastPlayer;
+                    cell.setAttribute('data-mark', lastPlayer);
+                    cell.classList.add('disabled');
+
+                    // 2. Update the game status
+                    updateStatus(data.winner, data.current_player);
+
+                    // 3. If game is over, disable all remaining cells
+                    if (data.game_over) {
+                        cells.forEach(c => c.classList.add('disabled'));
+                    }
+
+                } else {
+                    // Handle server errors or invalid moves
+                    const errorData = await response.json();
+                    alert(`Error: ${errorData.message}`);
+                }
+            } catch (error) {
+                console.error('Fetch error:', error);
+                alert('Could not connect to the server. Check the console for details.');
+            }
+        }
+    });
+</script>
+
+
+</body>
+</html>
