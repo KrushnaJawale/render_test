@@ -1,3 +1,4 @@
+import os # Import the 'os' module to access environment variables
 from flask import Flask, render_template, request, jsonify, session, redirect, url_for
 
 # Initialize the Flask application
@@ -108,5 +109,12 @@ def make_move():
         return jsonify({"message": "Server error processing move."}), 500
 
 if __name__ == '__main__':
-    # Flask will look for templates in a 'templates' folder automatically.
-    app.run(debug=True)
+    # --- FIX FOR DEPLOYMENT ---
+    # 1. Get port from environment variables (provided by Render)
+    # 2. Default to 5000 if not found (good for local development)
+    port = int(os.environ.get("PORT", 5000))
+    
+    # 3. Bind to '0.0.0.0' to listen on all public interfaces
+    #    (This is crucial for web hosts like Render)
+    # 4. Set debug=False for production deployments
+    app.run(host='0.0.0.0', port=port, debug=False)
