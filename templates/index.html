@@ -166,7 +166,8 @@
                         <a href="#home" class="text-gray-300 hover:text-white hover:bg-white/5 px-4 py-2 rounded-full text-sm font-medium transition-all">Home</a>
                         <a href="#about" class="text-gray-300 hover:text-white hover:bg-white/5 px-4 py-2 rounded-full text-sm font-medium transition-all">About</a>
                         <a href="#skills" class="text-gray-300 hover:text-white hover:bg-white/5 px-4 py-2 rounded-full text-sm font-medium transition-all">Stack</a>
-                        <a href="#projects" class="text-gray-300 hover:text-white hover:bg-white/5 px-4 py-2 rounded-full text-sm font-medium transition-all">Work</a>
+                        <a href="{{ url_for('projects') }}" class="text-gray-300 hover:text-white hover:bg-white/5 px-4 py-2 rounded-full text-sm font-medium transition-all">Work</a>
+                        <a href="{{ url_for('services') }}" class="text-gray-300 hover:text-white hover:bg-white/5 px-4 py-2 rounded-full text-sm font-medium transition-all">Services</a>
                     </div>
                 </div>
 
@@ -188,7 +189,8 @@
                 <a href="#home" class="mobile-link text-gray-300 hover:text-white block px-3 py-3 rounded-lg text-base font-medium hover:bg-white/5">Home</a>
                 <a href="#about" class="mobile-link text-gray-300 hover:text-white block px-3 py-3 rounded-lg text-base font-medium hover:bg-white/5">About</a>
                 <a href="#skills" class="mobile-link text-gray-300 hover:text-white block px-3 py-3 rounded-lg text-base font-medium hover:bg-white/5">Stack</a>
-                <a href="#projects" class="mobile-link text-gray-300 hover:text-white block px-3 py-3 rounded-lg text-base font-medium hover:bg-white/5">Projects</a>
+                <a href="{{ url_for('projects') }}" class="mobile-link text-gray-300 hover:text-white block px-3 py-3 rounded-lg text-base font-medium hover:bg-white/5">Projects</a>
+                <a href="{{ url_for('services') }}" class="mobile-link text-gray-300 hover:text-white block px-3 py-3 rounded-lg text-base font-medium hover:bg-white/5">Services</a>
                 <a href="#contact" class="mobile-link text-indigo-400 block px-3 py-3 rounded-lg text-base font-bold hover:bg-white/5">Contact Me</a>
             </div>
         </div>
@@ -253,9 +255,9 @@
                             </div>
                             <div class="p-8 pt-12 w-full font-mono text-sm text-gray-400 space-y-2 opacity-80">
                                 <p><span class="text-pink-400">const</span> <span class="text-yellow-300">developer</span> = {</p>
-                                <p class="pl-4">name: <span class="text-green-400">'Student'</span>,</p>
+                                <p class="pl-4">name: <span class="text-green-400">'Krushna Jawale'</span>,</p>
                                 <p class="pl-4">college: <span class="text-green-400">'SIT Lonavala'</span>,</p>
-                                <p class="pl-4">skills: [<span class="text-green-400">'Web'</span>, <span class="text-green-400">'Java'</span>],</p>
+                                <p class="pl-4">skills: [<span class="text-green-400">'Web , Python, Java'</span>, <span class="text-green-400">'Java'</span>],</p>
                                 <p class="pl-4">hardWorker: <span class="text-indigo-400">true</span></p>
                                 <p>};</p>
                                 <p class="text-gray-600">// Ready to deploy</p>
@@ -287,7 +289,7 @@
                     <p class="text-sm text-gray-400 uppercase tracking-wider">Year Student</p>
                 </div>
                 <div class="group">
-                    <h3 class="text-4xl font-bold text-white mb-1 group-hover:text-pink-400 transition-colors">5+</h3>
+                    <h3 class="text-4xl font-bold text-white mb-1 group-hover:text-pink-400 transition-colors">15+</h3>
                     <p class="text-sm text-gray-400 uppercase tracking-wider">Projects</p>
                 </div>
                 <div class="group">
@@ -420,8 +422,8 @@
                     <span class="text-green-400 font-semibold tracking-wider uppercase text-sm">Portfolio</span>
                     <h2 class="text-3xl md:text-5xl font-bold text-white mt-2">Featured <span class="text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-emerald-600">Works</span></h2>
                 </div>
-                <a href="#" class="hidden md:flex items-center gap-2 text-white hover:text-green-400 transition-colors font-medium">
-                    View All Repositories <i class="fas fa-arrow-right"></i>
+                <a href="{{ url_for('projects') }}" class="hidden md:flex items-center gap-2 text-white hover:text-green-400 transition-colors font-medium">
+                    View All Projects <i class="fas fa-arrow-right"></i>
                 </a>
             </div>
 
@@ -517,7 +519,7 @@
                     <p class="text-gray-400">Have an idea? I'm always open to discussing new projects and opportunities.</p>
                 </div>
 
-                <form class="space-y-6" onsubmit="event.preventDefault(); showMessage();">
+                <form class="space-y-6" method="POST" action="" onsubmit="event.preventDefault(); showMessage();">
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div class="group">
                             <label class="block text-sm font-medium text-gray-400 mb-2 group-focus-within:text-indigo-400 transition-colors">Name</label>

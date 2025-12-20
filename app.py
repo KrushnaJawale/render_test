@@ -1,10 +1,15 @@
 import os
-from flask import Flask, render_template,redirect, url_for
+import webbrowser, urllib.parse
+from flask import Flask, request, session,render_template,redirect, url_for
 
 # Initialize the Flask application
 app = Flask(__name__)
 # Set a secret key for session management (required for Flask sessions)
 app.secret_key = 'super_secret_tictactoe_key' 
+
+   
+
+
 
 @app.route('/')
 def index():
@@ -17,6 +22,23 @@ def projects():
 @app.route('/services')
 def services():
     return render_template('services.html')
+
+@app.route('/contact')
+def contact_send_email():
+    if request.method == 'POST':
+        name = request.form['name']
+        email = request.form['email']
+        message = request.form['message']
+        # Add code to send email here (using Flask-Mail or similar)
+        # For now, just print the received data
+        print(f"Received message from {name} ({email}): {message}")
+        # Encodes text and opens the default email app
+        params = urllib.parse.urlencode({'subject': f"Hello {name}", 'body': message})
+        webbrowser.open(f"mailto:{email}?{params}")
+
+# Run the Flask application
+
+
 
 
 
