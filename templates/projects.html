@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Project Documentation | Details</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts: Outfit -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;700;800&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Outfit', 'sans-serif'],
+                        mono: ['Fira Code', 'monospace'], // For code snippets
+                    },
+                    colors: {
+                        dark: '#0a0a0a',
+                        surface: '#121212',
+                        primary: '#6366f1', // Indigo-500
+                        secondary: '#ec4899', // Pink-500
+                        accent: '#8b5cf6', // Violet-500
+                    },
+                    animation: {
+                        'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-color: #050505;
+            color: #e2e8f0;
+            cursor: none;
+            overflow-x: hidden;
+        }
+
+        /* Custom Cursor */
+        #cursor-dot, #cursor-outline {
+            position: fixed;
+            top: 0;
+            left: 0;
+            transform: translate(-50%, -50%);
+            border-radius: 50%;
+            z-index: 9999;
+            pointer-events: none;
+        }
+        #cursor-dot { width: 8px; height: 8px; background-color: white; }
+        #cursor-outline {
+            width: 40px; height: 40px;
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            transition: width 0.2s, height 0.2s, background-color 0.2s;
+        }
+        
+        /* Background & Glass */
+        .bg-grid {
+            background-image: linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+            background-size: 50px 50px;
+            mask-image: radial-gradient(circle at center, black 40%, transparent 100%);
+        }
+        .glass-premium {
+            background: rgba(20, 20, 20, 0.6);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+        }
+        .glass-nav {
+            background: rgba(10, 10, 10, 0.8);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        /* Syntax Highlighting Mockup */
+        .code-keyword { color: #c678dd; } /* Purple */
+        .code-func { color: #61afef; } /* Blue */
+        .code-string { color: #98c379; } /* Green */
+        .code-comment { color: #5c6370; font-style: italic; } /* Grey */
+
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #0a0a0a; }
+        ::-webkit-scrollbar-thumb { background: #333; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #555; }
+
+        @media (max-width: 768px) {
+            body { cursor: auto; }
+            #cursor-dot, #cursor-outline { display: none; }
+        }
+    </style>
+</head>
+<body class="antialiased selection:bg-indigo-500 selection:text-white">
+
+    <!-- Custom Cursor -->
+    <div id="cursor-dot"></div>
+    <div id="cursor-outline"></div>
+
+    <!-- Background Ambience -->
+    <div class="fixed inset-0 w-full h-full pointer-events-none -z-10">
+        <div class="absolute inset-0 bg-grid opacity-50"></div>
+        <div class="absolute top-0 right-1/4 w-[500px] h-[500px] bg-primary/10 rounded-full blur-[100px] animate-pulse-slow"></div>
+        <div class="absolute bottom-0 left-1/4 w-[500px] h-[500px] bg-secondary/10 rounded-full blur-[100px] animate-pulse-slow" style="animation-delay: 2s;"></div>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="fixed w-full z-50 top-0 transition-all duration-300">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-4">
+            <div class="glass-nav rounded-full px-6 py-3 flex items-center justify-between border border-white/5 shadow-2xl">
+                <a href="index.html" class="flex-shrink-0 font-bold text-xl tracking-tight text-white flex items-center gap-2 hover:opacity-80 transition-opacity">
+                    <div class="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center text-white">
+                        <i class="fas fa-arrow-left text-sm"></i>
+                    </div>
+                    <span>Back to <span class="text-indigo-400">Portfolio</span></span>
+                </a>
+                
+                <div class="flex items-center gap-4">
+                    <a href="index.html#contact" class="hidden md:inline-flex items-center justify-center px-6 py-2 border border-transparent text-sm font-medium rounded-full text-white bg-indigo-600 hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-500/30">
+                        Hire Me
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="pt-32 pb-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+        
+        <!-- Header -->
+        <div class="text-center mb-20">
+            <span class="inline-block px-4 py-1.5 rounded-full border border-green-500/30 bg-green-500/10 text-green-400 text-sm font-medium tracking-wide mb-4">
+                <i class="fas fa-code-branch mr-2"></i> Project Showcase
+            </span>
+            <h1 class="text-4xl md:text-6xl font-bold text-white mb-6">
+                Detailed <span class="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-pink-400">Documentation</span>
+            </h1>
+            <p class="text-gray-400 max-w-2xl mx-auto text-lg">
+                A deep dive into the architecture, technology stack, and features of my academic and personal projects.
+            </p>
+        </div>
+
+        <!-- Project 1: Library Management System -->
+        <article class="glass-premium rounded-3xl overflow-hidden mb-20 border border-white/10" id="library-system">
+            <!-- Project Header -->
+            <div class="p-8 md:p-12 border-b border-white/5 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+                <div>
+                    <h2 class="text-3xl font-bold text-white mb-2">Library Management System</h2>
+                    <p class="text-indigo-300 font-medium">Console Application • C++ • OOP</p>
+                </div>
+                <div class="flex gap-3">
+                    <a href="#" class="px-6 py-2 rounded-full bg-white/10 hover:bg-white/20 text-white text-sm font-medium transition-colors flex items-center gap-2">
+                        <i class="fab fa-github"></i> Source Code
+                    </a>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3">
+                <!-- Left Details -->
+                <div class="p-8 md:p-12 lg:col-span-2 space-y-8">
+                    <!-- Overview -->
+                    <div>
+                        <h3 class="text-xl font-bold text-white mb-4 flex items-center gap-2">
+                            <i class="fas fa-info-circle text-indigo-400"></i> Overview
+                        </h3>
+                        <p class="text-gray-400 leading-relaxed">
+                            A comprehensive console-based application designed to streamline library operations. It replaces manual record-keeping with a digitized system using C++ File Handling. The system allows librarians to manage book inventories and student borrowing records efficiently, ensuring data persistence even after the program terminates.
+                        </p>
+                    </div>
+
+                    <!-- Tech Stack -->
+                    <div>
+                        <h3 class="text-xl font-bold text-white mb-4 flex items-center gap-2">
+                            <i class="fas fa-layer-group text-pink-400"></i> Technology Stack
+                        </h3>
+                        <div class="flex flex-wrap gap-3">
+                            <span class="px-4 py-2 rounded-lg bg-blue-500/10 border border-blue-500/20 text-blue-300 text-sm font-medium">C++ (std17)</span>
+                            <span class="px-4 py-2 rounded-lg bg-gray-700/30 border border-gray-600/30 text-gray-300 text-sm font-medium">File Handling (fstream)</span>
+                            <span class="px-4 py-2 rounded-lg bg-purple-500/10 border border-purple-500/20 text-purple-300 text-sm font-medium">OOP Principles</span>
+                            <span class="px-4 py-2 rounded-lg bg-red-500/10 border border-red-500/20 text-red-300 text-sm font-medium">Data Structures</span>
+                        </div>
+                    </div>
+
+                    <!-- Key Features -->
+                    <div>
+                        <h3 class="text-xl font-bold text-white mb-4 flex items-center gap-2">
+                            <i class="fas fa-star text-yellow-400"></i> Key Features
+                        </h3>
+                        <ul class="space-y-3 text-gray-400">
+                            <li class="flex items-start gap-3">
+                                <i class="fas fa-check text-green-400 mt-1"></i>
+                                <span><strong>Admin Authentication:</strong> Secure login for librarians to prevent unauthorized access.</span>
+                            </li>
+                            <li class="flex items-start gap-3">
+                                <i class="fas fa-check text-green-400 mt-1"></i>
+                                <span><strong>Book Management:</strong> Add, update, delete, and search for books by ID or Title.</span>
+                            </li>
+                            <li class="flex items-start gap-3">
+                                <i class="fas fa-check text-green-400 mt-1"></i>
+                                <span><strong>Issue/Return Logic:</strong> Automatically calculates due dates and late fines ($1/day).</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Right Visuals/Code -->
+                <div class="bg-black/20 p-8 md:p-12 border-l border-white/5">
+                    <div class="mb-8">
+                        <h3 class="text-sm font-bold text-gray-400 uppercase tracking-wider mb-4">Core Logic Snippet</h3>
+                        <div class="bg-[#1e1e1e] rounded-xl p-4 overflow-x-auto border border-white/10 shadow-inner">
+<pre class="font-mono text-xs leading-relaxed">
+<span class="code-keyword">class</span> <span class="code-func">Library</span> {
+    <span class="code-keyword">void</span> <span class="code-func">issueBook</span>() {
+        <span class="code-comment">// Check availability</span>
+        <span class="code-keyword">if</span> (book.count > 0) {
+            book.count--;
+            student.issued = <span class="code-keyword">true</span>;
+            <span class="code-func">saveToFile</span>();
+            cout << <span class="code-string">"Success!"</span>;
+        }
+    }
+};
+</pre>
+                        </div>
+                    </div>
+
+                    <!-- Placeholder Gallery -->
+                    <div>
+                        <h3 class="text-sm font-bold text-gray-400 uppercase tracking-wider mb-4">Screenshots</h3>
+                        <div class="space-y-4">
+                            <!-- Fake Screenshot 1 -->
+                            <div class="aspect-video bg-gray-800 rounded-lg flex items-center justify-center border border-white/5 hover:border-indigo-500/50 transition-colors group cursor-pointer">
+                                <div class="text-center">
+                                    <i class="fas fa-terminal text-4xl text-gray-600 group-hover:text-indigo-400 transition-colors mb-2"></i>
+                                    <p class="text-xs text-gray-500">Main Menu Interface</p>
+                                </div>
+                            </div>
+                            <!-- Fake Screenshot 2 -->
+                            <div class="aspect-video bg-gray-800 rounded-lg flex items-center justify-center border border-white/5 hover:border-indigo-500/50 transition-colors group cursor-pointer">
+                                <div class="text-center">
+                                    <i class="fas fa-list-alt text-4xl text-gray-600 group-hover:text-pink-400 transition-colors mb-2"></i>
+                                    <p class="text-xs text-gray-500">Book List View</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </article>
+
+        <!-- Project 2: Scientific Calculator -->
+        <article class="glass-premium rounded-3xl overflow-hidden mb-20 border border-white/10" id="calculator">
+            <!-- Project Header -->
+            <div class="p-8 md:p-12 border-b border-white/5 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+                <div>
+                    <h2 class="text-3xl font-bold text-white mb-2">Scientific Calculator</h2>
+                    <p class="text-yellow-400 font-medium">Desktop GUI • Python • Tkinter</p>
+                </div>
+                <div class="flex gap-3">
+                    <a href="#" class="px-6 py-2 rounded-full bg-white/10 hover:bg-white/20 text-white text-sm font-medium transition-colors flex items-center gap-2">
+                        <i class="fab fa-github"></i> Source Code
+                    </a>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3">
+                <div class="p-8 md:p-12 lg:col-span-2 space-y-8">
+                    <div>
+                        <h3 class="text-xl font-bold text-white mb-4 flex items-center gap-2">
+                            <i class="fas fa-info-circle text-yellow-400"></i> Overview
+                        </h3>
+                        <p class="text-gray-400 leading-relaxed">
+                            A fully functional GUI-based scientific calculator built with Python's Tkinter library. Unlike standard calculators, this project focuses on providing advanced mathematical functions in a user-friendly interface, handling complex expressions and error cases gracefully.
+                        </p>
+                    </div>
+
+                    <div>
+                        <h3 class="text-xl font-bold text-white mb-4 flex items-center gap-2">
+                            <i class="fas fa-layer-group text-pink-400"></i> Technology Stack
+                        </h3>
+                        <div class="flex flex-wrap gap-3">
+                            <span class="px-4 py-2 rounded-lg bg-yellow-500/10 border border-yellow-500/20 text-yellow-300 text-sm font-medium">Python 3.x</span>
+                            <span class="px-4 py-2 rounded-lg bg-blue-500/10 border border-blue-500/20 text-blue-300 text-sm font-medium">Tkinter GUI</span>
+                            <span class="px-4 py-2 rounded-lg bg-gray-700/30 border border-gray-600/30 text-gray-300 text-sm font-medium">Math Module</span>
+                        </div>
+                    </div>
+
+                    <div>
+                        <h3 class="text-xl font-bold text-white mb-4 flex items-center gap-2">
+                            <i class="fas fa-star text-indigo-400"></i> Key Features
+                        </h3>
+                        <ul class="space-y-3 text-gray-400">
+                            <li class="flex items-start gap-3">
+                                <i class="fas fa-check text-green-400 mt-1"></i>
+                                <span><strong>Scientific Functions:</strong> Sine, Cosine, Tangent, Logarithms, and Exponentials.</span>
+                            </li>
+                            <li class="flex items-start gap-3">
+                                <i class="fas fa-check text-green-400 mt-1"></i>
+                                <span><strong>Error Handling:</strong> Prevents crashes on Division by Zero or invalid syntax.</span>
+                            </li>
+                            <li class="flex items-start gap-3">
+                                <i class="fas fa-check text-green-400 mt-1"></i>
+                                <span><strong>History Tape:</strong> Keeps a temporary log of the last 5 calculations performed.</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="bg-black/20 p-8 md:p-12 border-l border-white/5">
+                    <div class="mb-8">
+                        <h3 class="text-sm font-bold text-gray-400 uppercase tracking-wider mb-4">Snippet</h3>
+                        <div class="bg-[#1e1e1e] rounded-xl p-4 overflow-x-auto border border-white/10 shadow-inner">
+<pre class="font-mono text-xs leading-relaxed">
+<span class="code-keyword">def</span> <span class="code-func">calculate</span>():
+    <span class="code-keyword">try</span>:
+        result = <span class="code-func">eval</span>(entry.get())
+        display.<span class="code-func">delete</span>(0, END)
+        display.<span class="code-func">insert</span>(0, result)
+    <span class="code-keyword">except</span> Exception:
+        display.<span class="code-func">insert</span>(0, <span class="code-string">"Error"</span>)
+</pre>
+                        </div>
+                    </div>
+
+                    <!-- Placeholder Gallery -->
+                    <div>
+                        <h3 class="text-sm font-bold text-gray-400 uppercase tracking-wider mb-4">Interface</h3>
+                        <div class="space-y-4">
+                            <div class="aspect-[4/3] bg-gray-800 rounded-lg flex items-center justify-center border border-white/5 hover:border-yellow-500/50 transition-colors group cursor-pointer">
+                                <div class="text-center">
+                                    <i class="fas fa-calculator text-4xl text-gray-600 group-hover:text-yellow-400 transition-colors mb-2"></i>
+                                    <p class="text-xs text-gray-500">Calculator UI</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </article>
+
+        <!-- Project 3: Tic Tac Toe -->
+        <article class="glass-premium rounded-3xl overflow-hidden mb-20 border border-white/10" id="tictactoe">
+            <!-- Project Header -->
+            <div class="p-8 md:p-12 border-b border-white/5 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+                <div>
+                    <h2 class="text-3xl font-bold text-white mb-2">Tic-Tac-Toe Web Game</h2>
+                    <p class="text-green-400 font-medium">Web Application • HTML/CSS/JS</p>
+                </div>
+                <div class="flex gap-3">
+                    <a href="#" class="px-6 py-2 rounded-full bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium transition-colors flex items-center gap-2 shadow-lg shadow-indigo-500/30">
+                        <i class="fas fa-play"></i> Live Demo
+                    </a>
+                    <a href="#" class="px-6 py-2 rounded-full bg-white/10 hover:bg-white/20 text-white text-sm font-medium transition-colors flex items-center gap-2">
+                        <i class="fab fa-github"></i> Code
+                    </a>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3">
+                <div class="p-8 md:p-12 lg:col-span-2 space-y-8">
+                    <div>
+                        <h3 class="text-xl font-bold text-white mb-4 flex items-center gap-2">
+                            <i class="fas fa-info-circle text-green-400"></i> Overview
+                        </h3>
+                        <p class="text-gray-400 leading-relaxed">
+                            A classic implementation of Tic-Tac-Toe tailored for the modern web. It features a responsive grid that works on mobile and desktop, real-time win detection algorithms, and a sleek neon-themed UI.
+                        </p>
+                    </div>
+
+                    <div>
+                        <h3 class="text-xl font-bold text-white mb-4 flex items-center gap-2">
+                            <i class="fas fa-layer-group text-pink-400"></i> Technology Stack
+                        </h3>
+                        <div class="flex flex-wrap gap-3">
+                            <span class="px-4 py-2 rounded-lg bg-orange-500/10 border border-orange-500/20 text-orange-300 text-sm font-medium">HTML5</span>
+                            <span class="px-4 py-2 rounded-lg bg-blue-500/10 border border-blue-500/20 text-blue-300 text-sm font-medium">CSS3 Grid</span>
+                            <span class="px-4 py-2 rounded-lg bg-yellow-500/10 border border-yellow-500/20 text-yellow-300 text-sm font-medium">JavaScript (ES6+)</span>
+                        </div>
+                    </div>
+
+                    <div>
+                        <h3 class="text-xl font-bold text-white mb-4 flex items-center gap-2">
+                            <i class="fas fa-star text-indigo-400"></i> Key Features
+                        </h3>
+                        <ul class="space-y-3 text-gray-400">
+                            <li class="flex items-start gap-3">
+                                <i class="fas fa-check text-green-400 mt-1"></i>
+                                <span><strong>Responsive Design:</strong> Adapts layout for phones and tablets.</span>
+                            </li>
+                            <li class="flex items-start gap-3">
+                                <i class="fas fa-check text-green-400 mt-1"></i>
+                                <span><strong>Game Logic:</strong> Checks 8 winning conditions (rows, cols, diagonals) instantly.</span>
+                            </li>
+                            <li class="flex items-start gap-3">
+                                <i class="fas fa-check text-green-400 mt-1"></i>
+                                <span><strong>Animations:</strong> Smooth CSS transitions for X/O placement and victory screen.</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="bg-black/20 p-8 md:p-12 border-l border-white/5">
+                    <div class="mb-8">
+                        <h3 class="text-sm font-bold text-gray-400 uppercase tracking-wider mb-4">Snippet</h3>
+                        <div class="bg-[#1e1e1e] rounded-xl p-4 overflow-x-auto border border-white/10 shadow-inner">
+<pre class="font-mono text-xs leading-relaxed">
+<span class="code-keyword">const</span> <span class="code-func">checkWin</span> = () => {
+  <span class="code-keyword">return</span> winPatterns.<span class="code-func">some</span>(combination => {
+    <span class="code-keyword">return</span> combination.<span class="code-func">every</span>(index => {
+      <span class="code-keyword">return</span> cells[index] === currentClass
+    })
+  })
+}
+</pre>
+                        </div>
+                    </div>
+
+                    <!-- Placeholder Gallery -->
+                    <div>
+                        <h3 class="text-sm font-bold text-gray-400 uppercase tracking-wider mb-4">Gameplay</h3>
+                        <div class="space-y-4">
+                            <div class="aspect-square bg-gray-800 rounded-lg flex items-center justify-center border border-white/5 hover:border-green-500/50 transition-colors group cursor-pointer">
+                                <div class="text-center">
+                                    <i class="fas fa-gamepad text-4xl text-gray-600 group-hover:text-green-400 transition-colors mb-2"></i>
+                                    <p class="text-xs text-gray-500">Game Board</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </article>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="border-t border-white/5 bg-black/50 backdrop-blur-md py-12">
+        <div class="max-w-7xl mx-auto px-4 text-center">
+            <h2 class="text-2xl font-bold text-white mb-4">Thanks for viewing my work!</h2>
+            <div class="flex justify-center gap-6 mb-8">
+                <a href="#" class="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center text-gray-400 hover:bg-indigo-600 hover:text-white transition-all"><i class="fab fa-github"></i></a>
+                <a href="#" class="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center text-gray-400 hover:bg-blue-600 hover:text-white transition-all"><i class="fab fa-linkedin-in"></i></a>
+                <a href="#" class="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center text-gray-400 hover:bg-pink-600 hover:text-white transition-all"><i class="fab fa-instagram"></i></a>
+            </div>
+            <p class="text-gray-600 text-sm">&copy; 2024 Your Name. All Rights Reserved.</p>
+        </div>
+    </footer>
+
+    <!-- Scripts (Cursor) -->
+    <script>
+        const cursorDot = document.getElementById("cursor-dot");
+        const cursorOutline = document.getElementById("cursor-outline");
+
+        window.addEventListener("mousemove", function (e) {
+            const posX = e.clientX;
+            const posY = e.clientY;
+            cursorDot.style.left = `${posX}px`;
+            cursorDot.style.top = `${posY}px`;
+            cursorOutline.style.left = `${posX}px`;
+            cursorOutline.style.top = `${posY}px`;
+        });
+
+        // Add hover effect
+        document.querySelectorAll("a, button").forEach(el => {
+            el.addEventListener("mouseenter", () => {
+                cursorOutline.style.transform = "translate(-50%, -50%) scale(1.5)";
+                cursorOutline.style.backgroundColor = "rgba(255, 255, 255, 0.1)";
+                cursorOutline.style.borderColor = "transparent";
+            });
+            el.addEventListener("mouseleave", () => {
+                cursorOutline.style.transform = "translate(-50%, -50%) scale(1)";
+                cursorOutline.style.backgroundColor = "transparent";
+                cursorOutline.style.borderColor = "rgba(255, 255, 255, 0.5)";
+            });
+        });
+    </script>
+</body>
+</html>
