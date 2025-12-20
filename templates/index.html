@@ -1,224 +1,550 @@
 <!DOCTYPE html>
-
-<html lang="en">
+<html lang="en" class="scroll-smooth">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Flask Tic-Tac-Toe</title>
-<style>
-body {
-font-family: 'Arial', sans-serif;
-display: flex;
-flex-direction: column;
-align-items: center;
-justify-content: center;
-min-height: 100vh;
-background-color: #f0f2f5;
-color: #333;
-margin: 0;
-padding: 20px;
-}
-
-    .container {
-        background-color: #fff;
-        padding: 30px;
-        border-radius: 12px;
-        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-        text-align: center;
-    }
-
-    h1 {
-        color: #4CAF50;
-        margin-bottom: 10px;
-    }
-
-    #status {
-        font-size: 1.5em;
-        font-weight: bold;
-        margin-bottom: 20px;
-        height: 30px; /* Ensure space is reserved */
-        color: #007bff;
-    }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Portfolio | CSE Student</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
     
-    #status.winner-x { color: #f44336; } /* Red for X win */
-    #status.winner-o { color: #2196f3; } /* Blue for O win */
-    #status.draw { color: #ff9800; } /* Orange for Draw */
-
-    .board {
-        display: grid;
-        grid-template-columns: repeat(3, 100px);
-        grid-template-rows: repeat(3, 100px);
-        gap: 5px;
-        margin-bottom: 20px;
-        background-color: #ccc;
-        border: 5px solid #ccc;
-        border-radius: 8px;
-    }
-
-    .cell {
-        background-color: #fff;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 3em;
-        font-weight: 700;
-        cursor: pointer;
-        transition: background-color 0.2s, transform 0.1s;
-        border-radius: 4px;
-    }
-
-    .cell:hover:not([data-mark]):not(.disabled) {
-        background-color: #e0e0e0;
-    }
-
-    .cell[data-mark="X"] { color: #f44336; }
-    .cell[data-mark="O"] { color: #2196f3; }
-    .cell.disabled { cursor: default; }
-
-    .reset-button {
-        padding: 10px 20px;
-        font-size: 1.1em;
-        background-color: #4CAF50;
-        color: white;
-        border: none;
-        border-radius: 8px;
-        cursor: pointer;
-        transition: background-color 0.3s ease, box-shadow 0.3s ease;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    }
-
-    .reset-button:hover {
-        background-color: #45a049;
-        box-shadow: 0 6px 10px rgba(0, 0, 0, 0.15);
-    }
-    
-    /* Mobile adjustments */
-    @media (max-width: 400px) {
-        .board {
-            grid-template-columns: repeat(3, 80px);
-            grid-template-rows: repeat(3, 80px);
-        }
-        .cell {
-            font-size: 2.5em;
-        }
-        .container {
-            padding: 15px;
-        }
-        #status {
-            font-size: 1.2em;
-        }
-    }
-</style>
-
-
-</head>
-<body>
-<div class="container">
-<h1>Tic-Tac-Toe</h1>
-
-    <!-- Status message area -->
-    <div id="status">It is X's turn to move.</div>
-
-    <!-- The 3x3 game board -->
-    <div class="board" id="board">
-        {% for mark in game.board %}
-            <div class="cell" data-index="{{ loop.index0 }}" data-mark="{{ mark if mark != '' else '' }}">
-                {{ mark }}
-            </div>
-        {% endfor %}
-    </div>
-
-    <!-- Reset Button -->
-    <form method="POST" action="/reset">
-        <button type="submit" class="reset-button">Reset Game</button>
-    </form>
-</div>
-
-<script>
-    const boardElement = document.getElementById('board');
-    const statusElement = document.getElementById('status');
-    const cells = document.querySelectorAll('.cell');
-    const isGameOver = {{ game.game_over | tojson }};
-
-    // Initialize board display on page load based on Flask session data
-    cells.forEach(cell => {
-        const mark = cell.getAttribute('data-mark');
-        if (mark) {
-            cell.textContent = mark;
-            cell.classList.add('disabled');
-        }
-    });
-
-    function updateStatus(winner, currentPlayer) {
-        statusElement.className = ''; // Clear previous classes
-
-        if (winner === 'Draw') {
-            statusElement.textContent = "It's a DRAW!";
-            statusElement.classList.add('draw');
-        } else if (winner) {
-            statusElement.textContent = `Player ${winner} WINS!`;
-            statusElement.classList.add(winner === 'X' ? 'winner-x' : 'winner-o');
-        } else {
-            statusElement.textContent = `It is ${currentPlayer}'s turn to move.`;
-        }
-    }
-
-    // Set initial status based on the data passed from Python
-    updateStatus("{{ game.winner if game.winner else '' }}", "{{ game.current_player }}");
-    
-    // Disable board interaction if the game is over
-    if (isGameOver) {
-        cells.forEach(cell => cell.classList.add('disabled'));
-    }
-
-    // --- Event Listener for Moves ---
-    boardElement.addEventListener('click', async (event) => {
-        const cell = event.target;
-        
-        // Check if the clicked element is a cell, and if it's empty and the game is not over
-        if (cell.classList.contains('cell') && !cell.classList.contains('disabled')) {
-            const cellIndex = cell.getAttribute('data-index');
-
-            try {
-                const response = await fetch('/move', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Poppins', 'sans-serif'],
                     },
-                    body: JSON.stringify({ cell_index: cellIndex })
-                });
-
-                // Handle success response from Flask
-                if (response.ok) {
-                    const data = await response.json();
-                    const lastPlayer = data.current_player === 'X' ? 'O' : 'X'; // The player who just moved
-                    
-                    // 1. Update the clicked cell in the UI
-                    cell.textContent = lastPlayer;
-                    cell.setAttribute('data-mark', lastPlayer);
-                    cell.classList.add('disabled');
-
-                    // 2. Update the game status
-                    updateStatus(data.winner, data.current_player);
-
-                    // 3. If game is over, disable all remaining cells
-                    if (data.game_over) {
-                        cells.forEach(c => c.classList.add('disabled'));
+                    colors: {
+                        primary: '#3b82f6', // Blue-500
+                        secondary: '#8b5cf6', // Violet-500
+                        dark: '#0f172a', // Slate-900
+                    },
+                    animation: {
+                        'blob': 'blob 7s infinite',
+                        'fade-in-up': 'fadeInUp 0.8s ease-out forwards',
+                    },
+                    keyframes: {
+                        blob: {
+                            '0%': { transform: 'translate(0px, 0px) scale(1)' },
+                            '33%': { transform: 'translate(30px, -50px) scale(1.1)' },
+                            '66%': { transform: 'translate(-20px, 20px) scale(0.9)' },
+                            '100%': { transform: 'translate(0px, 0px) scale(1)' },
+                        },
+                        fadeInUp: {
+                            '0%': { opacity: '0', transform: 'translateY(20px)' },
+                            '100%': { opacity: '1', transform: 'translateY(0)' },
+                        }
                     }
-
-                } else {
-                    // Handle server errors or invalid moves
-                    const errorData = await response.json();
-                    alert(`Error: ${errorData.message}`);
                 }
-            } catch (error) {
-                console.error('Fetch error:', error);
-                alert('Could not connect to the server. Check the console for details.');
             }
         }
-    });
-</script>
+    </script>
+    <style>
+        body {
+            background-color: #0f172a;
+            color: #e2e8f0;
+            overflow-x: hidden;
+        }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 10px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #1e293b;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #3b82f6;
+            border-radius: 5px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #2563eb;
+        }
 
+        .glass-card {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .nav-link::after {
+            content: '';
+            display: block;
+            width: 0;
+            height: 2px;
+            background: #3b82f6;
+            transition: width .3s;
+        }
+        .nav-link:hover::after {
+            width: 100%;
+        }
 
+        /* Typing cursor */
+        .typing-cursor::after {
+            content: '|';
+            animation: blink 1s step-start infinite;
+        }
+        @keyframes blink {
+            50% { opacity: 0; }
+        }
+    </style>
+</head>
+<body class="antialiased relative">
+
+    <!-- Background Blobs -->
+    <div class="fixed top-0 left-0 w-full h-full overflow-hidden -z-10 pointer-events-none">
+        <div class="absolute top-0 left-1/4 w-96 h-96 bg-primary/20 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob"></div>
+        <div class="absolute top-0 right-1/4 w-96 h-96 bg-secondary/20 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob animation-delay-2000"></div>
+        <div class="absolute -bottom-32 left-1/3 w-96 h-96 bg-pink-500/20 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob animation-delay-4000"></div>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="fixed w-full z-50 transition-all duration-300" id="navbar">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex-shrink-0 font-bold text-2xl tracking-wider text-white">
+                    <span class="text-primary">&lt;</span>Port<span class="text-secondary">folio</span><span class="text-primary">/&gt;</span>
+                </div>
+                
+                <!-- Desktop Menu -->
+                <div class="hidden md:block">
+                    <div class="ml-10 flex items-baseline space-x-8">
+                        <a href="#home" class="nav-link text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors">Home</a>
+                        <a href="#about" class="nav-link text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors">About</a>
+                        <a href="#skills" class="nav-link text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors">Skills</a>
+                        <a href="#education" class="nav-link text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors">Education</a>
+                        <a href="#projects" class="nav-link text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors">Projects</a>
+                        <a href="#contact" class="bg-primary hover:bg-blue-600 text-white px-4 py-2 rounded-full text-sm font-medium transition-all shadow-lg hover:shadow-blue-500/50">Contact Me</a>
+                    </div>
+                </div>
+
+                <!-- Mobile menu button -->
+                <div class="-mr-2 flex md:hidden">
+                    <button type="button" id="mobile-menu-btn" class="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-white hover:bg-gray-700 focus:outline-none">
+                        <i class="fas fa-bars text-xl"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mobile Menu -->
+        <div class="md:hidden hidden glass-card absolute w-full" id="mobile-menu">
+            <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3">
+                <a href="#home" class="mobile-link text-gray-300 hover:text-white block px-3 py-2 rounded-md text-base font-medium">Home</a>
+                <a href="#about" class="mobile-link text-gray-300 hover:text-white block px-3 py-2 rounded-md text-base font-medium">About</a>
+                <a href="#skills" class="mobile-link text-gray-300 hover:text-white block px-3 py-2 rounded-md text-base font-medium">Skills</a>
+                <a href="#education" class="mobile-link text-gray-300 hover:text-white block px-3 py-2 rounded-md text-base font-medium">Education</a>
+                <a href="#projects" class="mobile-link text-gray-300 hover:text-white block px-3 py-2 rounded-md text-base font-medium">Projects</a>
+                <a href="#contact" class="mobile-link text-primary font-bold block px-3 py-2 rounded-md text-base">Contact Me</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Home Section -->
+    <section id="home" class="min-h-screen flex items-center justify-center pt-16">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
+            <div class="flex flex-col md:flex-row items-center justify-between">
+                <div class="w-full md:w-1/2 space-y-6 text-center md:text-left animate-fade-in-up">
+                    <p class="text-secondary font-medium text-lg">Hello, I am</p>
+                    <h1 class="text-4xl md:text-6xl font-bold text-white">
+                        <span id="typewriter"></span><span class="typing-cursor"></span>
+                    </h1>
+                    <p class="text-gray-400 text-lg md:text-xl max-w-lg mx-auto md:mx-0">
+                        2nd Year Computer Science Engineering Student at <span class="text-blue-400">Sinhgad Institute of Technology</span>. Passionate about coding and building web solutions.
+                    </p>
+                    <div class="flex flex-col sm:flex-row gap-4 justify-center md:justify-start pt-4">
+                        <a href="#projects" class="px-8 py-3 bg-gradient-to-r from-blue-500 to-violet-600 rounded-full text-white font-semibold shadow-lg shadow-blue-500/30 hover:shadow-blue-500/50 transition-all transform hover:-translate-y-1">
+                            View Work
+                        </a>
+                        <a href="#contact" class="px-8 py-3 border border-gray-600 rounded-full text-gray-300 hover:border-white hover:text-white transition-all">
+                            Contact Me
+                        </a>
+                    </div>
+                    <div class="flex gap-6 justify-center md:justify-start pt-6 text-2xl text-gray-400">
+                        <a href="#" class="hover:text-white transition-colors"><i class="fab fa-github"></i></a>
+                        <a href="#" class="hover:text-blue-400 transition-colors"><i class="fab fa-linkedin"></i></a>
+                        <a href="#" class="hover:text-pink-500 transition-colors"><i class="fab fa-instagram"></i></a>
+                    </div>
+                </div>
+                <div class="w-full md:w-1/2 mt-12 md:mt-0 flex justify-center relative">
+                    <!-- Profile Image Placeholder with glow -->
+                    <div class="relative w-64 h-64 md:w-80 md:h-80">
+                        <div class="absolute inset-0 bg-gradient-to-r from-blue-500 to-violet-600 rounded-full blur-2xl opacity-50 animate-pulse"></div>
+                        <div class="relative w-full h-full rounded-full overflow-hidden border-4 border-slate-700 bg-slate-800 flex items-center justify-center">
+                           <i class="fas fa-user-graduate text-8xl text-gray-500"></i>
+                           <!-- Replace the line above with an img tag for your photo: 
+                            <img src="your-photo.jpg" alt="Profile" class="w-full h-full object-cover"> 
+                           -->
+                        </div>
+                        
+                        <!-- Floating Badges -->
+                        <div class="absolute -top-4 -right-4 glass-card p-3 rounded-xl animate-bounce delay-100">
+                            <i class="fab fa-java text-orange-500 text-2xl"></i>
+                        </div>
+                        <div class="absolute bottom-4 -left-4 glass-card p-3 rounded-xl animate-bounce delay-700">
+                            <i class="fab fa-python text-yellow-400 text-2xl"></i>
+                        </div>
+                        <div class="absolute top-1/2 -right-10 glass-card p-3 rounded-xl animate-bounce delay-300">
+                            <i class="fab fa-js text-yellow-300 text-2xl"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section id="about" class="py-20 bg-slate-900/50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <h2 class="text-3xl md:text-4xl font-bold text-white mb-4">About <span class="text-primary">Me</span></h2>
+                <div class="w-20 h-1 bg-gradient-to-r from-blue-500 to-violet-500 mx-auto rounded-full"></div>
+            </div>
+
+            <div class="glass-card rounded-2xl p-8 md:p-12 hover:shadow-2xl hover:shadow-blue-500/10 transition-all duration-300 border-l-4 border-l-primary">
+                <div class="grid md:grid-cols-3 gap-8 items-center">
+                    <div class="col-span-2">
+                        <h3 class="text-2xl font-semibold text-white mb-4">Software Engineering Student</h3>
+                        <p class="text-gray-400 leading-relaxed mb-6">
+                            I am currently pursuing my <strong>Bachelor of Technology (B.Tech)</strong> in Computer Science and Engineering at 
+                            <span class="text-blue-400">Sinhgad Institute of Technology, Lonavala</span>, affiliated with 
+                            <span class="text-secondary">Savitribai Phule Pune University (SPPU)</span>.
+                        </p>
+                        <p class="text-gray-400 leading-relaxed">
+                            I enjoy solving problems through code. My journey started with C/C++ in my first year, and now I'm diving deep into Web Development and Data Structures. I am always eager to learn new technologies and apply them to solve real-world problems.
+                        </p>
+                    </div>
+                    <div class="grid grid-cols-2 gap-4 text-center">
+                        <div class="bg-slate-800 p-4 rounded-xl">
+                            <span class="block text-3xl font-bold text-primary mb-1">2nd</span>
+                            <span class="text-sm text-gray-400">Year Student</span>
+                        </div>
+                        <div class="bg-slate-800 p-4 rounded-xl">
+                            <span class="block text-3xl font-bold text-secondary mb-1">5+</span>
+                            <span class="text-sm text-gray-400">Projects</span>
+                        </div>
+                        <div class="bg-slate-800 p-4 rounded-xl">
+                            <span class="block text-3xl font-bold text-pink-500 mb-1">8.5</span>
+                            <span class="text-sm text-gray-400">CGPA (Avg)</span>
+                        </div>
+                        <div class="bg-slate-800 p-4 rounded-xl">
+                            <span class="block text-3xl font-bold text-green-500 mb-1">20+</span>
+                            <span class="text-sm text-gray-400">Repositories</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Skills Section -->
+    <section id="skills" class="py-20">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <h2 class="text-3xl md:text-4xl font-bold text-white mb-4">My <span class="text-secondary">Skills</span></h2>
+                <div class="w-20 h-1 bg-gradient-to-r from-blue-500 to-violet-500 mx-auto rounded-full"></div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <!-- Skill Card 1 -->
+                <div class="glass-card p-6 rounded-xl hover:transform hover:-translate-y-2 transition-all duration-300">
+                    <div class="w-12 h-12 bg-blue-500/20 rounded-lg flex items-center justify-center mb-4 text-blue-400 text-2xl">
+                        <i class="fab fa-html5"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold text-white mb-2">Frontend</h3>
+                    <p class="text-gray-400 text-sm">HTML5, CSS3, JavaScript, Tailwind CSS</p>
+                </div>
+                <!-- Skill Card 2 -->
+                <div class="glass-card p-6 rounded-xl hover:transform hover:-translate-y-2 transition-all duration-300">
+                    <div class="w-12 h-12 bg-yellow-500/20 rounded-lg flex items-center justify-center mb-4 text-yellow-400 text-2xl">
+                        <i class="fab fa-python"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold text-white mb-2">Languages</h3>
+                    <p class="text-gray-400 text-sm">C, C++, Java, Python</p>
+                </div>
+                <!-- Skill Card 3 -->
+                <div class="glass-card p-6 rounded-xl hover:transform hover:-translate-y-2 transition-all duration-300">
+                    <div class="w-12 h-12 bg-green-500/20 rounded-lg flex items-center justify-center mb-4 text-green-400 text-2xl">
+                        <i class="fas fa-database"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold text-white mb-2">Database</h3>
+                    <p class="text-gray-400 text-sm">MySQL, DBMS Concepts</p>
+                </div>
+                <!-- Skill Card 4 -->
+                <div class="glass-card p-6 rounded-xl hover:transform hover:-translate-y-2 transition-all duration-300">
+                    <div class="w-12 h-12 bg-purple-500/20 rounded-lg flex items-center justify-center mb-4 text-purple-400 text-2xl">
+                        <i class="fas fa-code-branch"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold text-white mb-2">Tools</h3>
+                    <p class="text-gray-400 text-sm">Git, GitHub, VS Code, Linux</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Education Section -->
+    <section id="education" class="py-20 bg-slate-900/50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <h2 class="text-3xl md:text-4xl font-bold text-white mb-4">Education <span class="text-primary">Timeline</span></h2>
+                <div class="w-20 h-1 bg-gradient-to-r from-blue-500 to-violet-500 mx-auto rounded-full"></div>
+            </div>
+
+            <div class="max-w-3xl mx-auto">
+                <div class="relative border-l-2 border-gray-700 ml-4 md:ml-0 space-y-12">
+                    
+                    <!-- Item 1 -->
+                    <div class="relative pl-8 md:pl-12 group">
+                        <div class="absolute -left-[9px] top-0 w-5 h-5 bg-blue-500 rounded-full border-4 border-slate-900 group-hover:bg-violet-500 transition-colors"></div>
+                        <div class="glass-card p-6 rounded-xl">
+                            <span class="inline-block px-3 py-1 bg-blue-500/20 text-blue-400 rounded-full text-xs font-semibold mb-2">2022 - Present</span>
+                            <h3 class="text-xl font-bold text-white">B.Tech in Computer Engineering</h3>
+                            <p class="text-secondary font-medium mb-2">Sinhgad Institute of Technology (SIT), Lonavala</p>
+                            <p class="text-gray-400 text-sm">Affiliated to SPPU (Pune University). Currently in 2nd Year. Learning Core CS concepts like Data Structures, OOP, and Computer Graphics.</p>
+                        </div>
+                    </div>
+
+                    <!-- Item 2 -->
+                    <div class="relative pl-8 md:pl-12 group">
+                        <div class="absolute -left-[9px] top-0 w-5 h-5 bg-gray-600 rounded-full border-4 border-slate-900 group-hover:bg-blue-500 transition-colors"></div>
+                        <div class="glass-card p-6 rounded-xl">
+                            <span class="inline-block px-3 py-1 bg-gray-700 text-gray-300 rounded-full text-xs font-semibold mb-2">2020 - 2022</span>
+                            <h3 class="text-xl font-bold text-white">Higher Secondary (HSC)</h3>
+                            <p class="text-secondary font-medium mb-2">Maharashtra State Board</p>
+                            <p class="text-gray-400 text-sm">Completed 12th grade Science stream with focus on Physics, Chemistry, and Mathematics.</p>
+                        </div>
+                    </div>
+
+                    <!-- Item 3 -->
+                    <div class="relative pl-8 md:pl-12 group">
+                        <div class="absolute -left-[9px] top-0 w-5 h-5 bg-gray-600 rounded-full border-4 border-slate-900 group-hover:bg-blue-500 transition-colors"></div>
+                        <div class="glass-card p-6 rounded-xl">
+                            <span class="inline-block px-3 py-1 bg-gray-700 text-gray-300 rounded-full text-xs font-semibold mb-2">2020</span>
+                            <h3 class="text-xl font-bold text-white">Secondary School (SSC)</h3>
+                            <p class="text-secondary font-medium mb-2">Maharashtra State Board</p>
+                            <p class="text-gray-400 text-sm">Completed 10th grade with distinction.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Projects Section -->
+    <section id="projects" class="py-20">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <h2 class="text-3xl md:text-4xl font-bold text-white mb-4">My <span class="text-secondary">Projects</span></h2>
+                <div class="w-20 h-1 bg-gradient-to-r from-blue-500 to-violet-500 mx-auto rounded-full"></div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Project 1 -->
+                <div class="glass-card rounded-xl overflow-hidden group">
+                    <div class="h-48 bg-slate-800 flex items-center justify-center group-hover:bg-slate-700 transition-colors relative overflow-hidden">
+                        <i class="fas fa-book-reader text-5xl text-blue-400 group-hover:scale-110 transition-transform duration-300"></i>
+                    </div>
+                    <div class="p-6">
+                        <h3 class="text-xl font-bold text-white mb-2">Library Management System</h3>
+                        <p class="text-gray-400 text-sm mb-4">A C++ console application to manage book records, student borrowing history, and inventory tracking.</p>
+                        <div class="flex gap-2 mb-4">
+                            <span class="px-2 py-1 bg-blue-900/30 text-blue-300 text-xs rounded">C++</span>
+                            <span class="px-2 py-1 bg-blue-900/30 text-blue-300 text-xs rounded">File Handling</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <a href="#" class="text-white hover:text-blue-400 text-sm font-medium"><i class="fab fa-github mr-1"></i> Code</a>
+                            <a href="#" class="text-gray-500 cursor-not-allowed text-sm"><i class="fas fa-external-link-alt mr-1"></i> Live Demo</a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Project 2 -->
+                <div class="glass-card rounded-xl overflow-hidden group">
+                    <div class="h-48 bg-slate-800 flex items-center justify-center group-hover:bg-slate-700 transition-colors">
+                        <i class="fas fa-calculator text-5xl text-violet-400 group-hover:scale-110 transition-transform duration-300"></i>
+                    </div>
+                    <div class="p-6">
+                        <h3 class="text-xl font-bold text-white mb-2">Scientific Calculator</h3>
+                        <p class="text-gray-400 text-sm mb-4">A GUI-based calculator built using Python Tkinter supporting trigonometric and logarithmic functions.</p>
+                        <div class="flex gap-2 mb-4">
+                            <span class="px-2 py-1 bg-violet-900/30 text-violet-300 text-xs rounded">Python</span>
+                            <span class="px-2 py-1 bg-violet-900/30 text-violet-300 text-xs rounded">Tkinter</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <a href="#" class="text-white hover:text-blue-400 text-sm font-medium"><i class="fab fa-github mr-1"></i> Code</a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Project 3 -->
+                <div class="glass-card rounded-xl overflow-hidden group">
+                    <div class="h-48 bg-slate-800 flex items-center justify-center group-hover:bg-slate-700 transition-colors">
+                        <i class="fas fa-gamepad text-5xl text-green-400 group-hover:scale-110 transition-transform duration-300"></i>
+                    </div>
+                    <div class="p-6">
+                        <h3 class="text-xl font-bold text-white mb-2">Tic-Tac-Toe Game</h3>
+                        <p class="text-gray-400 text-sm mb-4">Classic web-based game with logic for win detection and a clean, responsive UI.</p>
+                        <div class="flex gap-2 mb-4">
+                            <span class="px-2 py-1 bg-green-900/30 text-green-300 text-xs rounded">HTML</span>
+                            <span class="px-2 py-1 bg-green-900/30 text-green-300 text-xs rounded">JS</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <a href="#" class="text-white hover:text-blue-400 text-sm font-medium"><i class="fab fa-github mr-1"></i> Code</a>
+                            <a href="#" class="text-white hover:text-blue-400 text-sm font-medium"><i class="fas fa-external-link-alt mr-1"></i> Live Demo</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="text-center mt-12">
+                <a href="#" class="inline-block px-8 py-3 border border-primary text-primary hover:bg-primary hover:text-white rounded-full transition-all duration-300">
+                    See More on GitHub
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section id="contact" class="py-20 bg-slate-900/50">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <h2 class="text-3xl md:text-4xl font-bold text-white mb-4">Get In <span class="text-primary">Touch</span></h2>
+                <div class="w-20 h-1 bg-gradient-to-r from-blue-500 to-violet-500 mx-auto rounded-full"></div>
+                <p class="text-gray-400 mt-4">Have a project in mind or just want to say hi? Feel free to connect!</p>
+            </div>
+
+            <div class="glass-card rounded-2xl p-8">
+                <form class="space-y-6" onsubmit="event.preventDefault(); showMessage();">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-400 mb-2">Name</label>
+                            <input type="text" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-blue-500 transition-colors" placeholder="Your Name" required>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-400 mb-2">Email</label>
+                            <input type="email" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-blue-500 transition-colors" placeholder="your@email.com" required>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-400 mb-2">Message</label>
+                        <textarea rows="4" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-blue-500 transition-colors" placeholder="Write your message here..." required></textarea>
+                    </div>
+                    <button type="submit" class="w-full bg-gradient-to-r from-blue-600 to-violet-600 text-white font-bold py-3 rounded-lg hover:opacity-90 transition-opacity shadow-lg">
+                        Send Message
+                    </button>
+                </form>
+                
+                <!-- Simple Alert Modal (Hidden by default) -->
+                <div id="success-msg" class="hidden mt-4 p-4 bg-green-500/20 border border-green-500/50 rounded-lg text-green-300 text-center">
+                    Message sent successfully!
+                </div>
+            </div>
+
+            <div class="flex justify-center gap-8 mt-12">
+                <a href="#" class="flex flex-col items-center gap-2 group">
+                    <div class="w-12 h-12 bg-slate-800 rounded-full flex items-center justify-center group-hover:bg-blue-600 transition-colors">
+                        <i class="fas fa-envelope text-white"></i>
+                    </div>
+                    <span class="text-gray-400 text-sm group-hover:text-white">Email</span>
+                </a>
+                <a href="#" class="flex flex-col items-center gap-2 group">
+                    <div class="w-12 h-12 bg-slate-800 rounded-full flex items-center justify-center group-hover:bg-[#0077b5] transition-colors">
+                        <i class="fab fa-linkedin-in text-white"></i>
+                    </div>
+                    <span class="text-gray-400 text-sm group-hover:text-white">LinkedIn</span>
+                </a>
+                <a href="#" class="flex flex-col items-center gap-2 group">
+                    <div class="w-12 h-12 bg-slate-800 rounded-full flex items-center justify-center group-hover:bg-gray-700 transition-colors">
+                        <i class="fab fa-github text-white"></i>
+                    </div>
+                    <span class="text-gray-400 text-sm group-hover:text-white">GitHub</span>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="py-8 border-t border-slate-800 text-center">
+        <p class="text-gray-500 text-sm">
+            &copy; 2024 Your Name. Built with <i class="fas fa-heart text-red-500 mx-1"></i> at SIT Lonavala.
+        </p>
+    </footer>
+
+    <!-- JavaScript -->
+    <script>
+        // Typewriter Effect
+        const textElement = document.getElementById('typewriter');
+        const phrases = ['Student', 'Developer', 'Coder', 'Engineer'];
+        let phraseIndex = 0;
+        let charIndex = 0;
+        let isDeleting = false;
+        let typeSpeed = 100;
+
+        function type() {
+            const currentPhrase = phrases[phraseIndex];
+            
+            if (isDeleting) {
+                textElement.textContent = currentPhrase.substring(0, charIndex - 1);
+                charIndex--;
+                typeSpeed = 50;
+            } else {
+                textElement.textContent = currentPhrase.substring(0, charIndex + 1);
+                charIndex++;
+                typeSpeed = 150;
+            }
+
+            if (!isDeleting && charIndex === currentPhrase.length) {
+                isDeleting = true;
+                typeSpeed = 2000; // Pause at end
+            } else if (isDeleting && charIndex === 0) {
+                isDeleting = false;
+                phraseIndex = (phraseIndex + 1) % phrases.length;
+                typeSpeed = 500;
+            }
+
+            setTimeout(type, typeSpeed);
+        }
+
+        document.addEventListener('DOMContentLoaded', type);
+
+        // Mobile Menu Toggle
+        const btn = document.getElementById('mobile-menu-btn');
+        const menu = document.getElementById('mobile-menu');
+        const links = document.querySelectorAll('.mobile-link');
+
+        btn.addEventListener('click', () => {
+            menu.classList.toggle('hidden');
+        });
+
+        links.forEach(link => {
+            link.addEventListener('click', () => {
+                menu.classList.add('hidden');
+            });
+        });
+
+        // Navbar Scroll Effect
+        window.addEventListener('scroll', () => {
+            const navbar = document.getElementById('navbar');
+            if (window.scrollY > 20) {
+                navbar.classList.add('bg-slate-900/90', 'backdrop-blur-md', 'shadow-lg');
+            } else {
+                navbar.classList.remove('bg-slate-900/90', 'backdrop-blur-md', 'shadow-lg');
+            }
+        });
+
+        // Contact Form Fake Submit
+        function showMessage() {
+            const msg = document.getElementById('success-msg');
+            msg.classList.remove('hidden');
+            setTimeout(() => {
+                msg.classList.add('hidden');
+                document.querySelector('form').reset();
+            }, 3000);
+        }
+    </script>
 </body>
 </html>
