@@ -23,19 +23,6 @@ def projects():
 def services():
     return render_template('services.html')
 
-@app.route('/contact')
-def contact_send_email():
-    if request.method == 'POST':
-        name = request.form['name']
-        email = "krushnajawale2522006@gmail.com"
-        message = request.form['message']
-        # Add code to send email here (using Flask-Mail or similar)
-        # For now, just print the received data
-        print(f"Received message from {name} ({email}): {message}")
-        # Encodes text and opens the default email app
-        params = urllib.parse.urlencode({'subject': f"Hello {name}", 'body': message})
-        webbrowser.open(f"mailto:{email}?{params}")
-
 # Run the Flask application
 
 
