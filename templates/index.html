@@ -523,12 +523,12 @@
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div class="group">
                             <label class="block text-sm font-medium text-gray-400 mb-2 group-focus-within:text-indigo-400 transition-colors">Name</label>
-                            <input type="text" class="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-4 text-white focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all placeholder-gray-600" placeholder="John Doe" required>
+                            <input type="text" id="uName" name="name" class="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-4 text-white focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all placeholder-gray-600" placeholder="John Doe" required>
                         </div>
                     </div>
                     <div class="group">
                         <label class="block text-sm font-medium text-gray-400 mb-2 group-focus-within:text-indigo-400 transition-colors">Message</label>
-                        <textarea rows="4" class="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-4 text-white focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all placeholder-gray-600" placeholder="Tell me about your project..." required></textarea>
+                        <textarea rows="4" id="uMessage" name="message" class="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-4 text-white focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all placeholder-gray-600" placeholder="Tell me about your project..." required></textarea>
                     </div>
                     <button type="submit" class="w-full bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-bold py-4 rounded-xl hover:shadow-lg hover:shadow-indigo-500/30 transform hover:-translate-y-1 transition-all duration-300">
                         Send Message
@@ -537,7 +537,7 @@
 
                 <!-- Success Message -->
                 <div id="success-msg" class="hidden mt-4 p-4 bg-green-500/10 border border-green-500/20 rounded-xl text-green-400 text-center flex items-center justify-center gap-2">
-                    <i class="fas fa-check-circle"></i> Message sent successfully!
+                    <i class="fas fa-check-circle"></i> Opening email app...!
                 </div>
             </div>
 
