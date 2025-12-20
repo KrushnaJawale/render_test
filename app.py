@@ -27,7 +27,7 @@ def services():
 def contact_send_email():
     if request.method == 'POST':
         name = request.form['name']
-        email = request.form['email']
+        email = "krushnajawale2522006@gmail.com"
         message = request.form['message']
         # Add code to send email here (using Flask-Mail or similar)
         # For now, just print the received data
