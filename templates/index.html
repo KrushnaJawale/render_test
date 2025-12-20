@@ -636,28 +636,35 @@
             });
         });
 
-        // Smooth Contact Form
-        function showMessage() {
-            var name = document.getElementById("uName").value;
-            var email = "krushnajawale2522006@gmail.com";
-            var message = document.getElementById("uMessage").value;
+        // Smooth Contact Form (Gmail Web Version)
+function showMessage() {
+    var name = document.getElementById("uName").value;
+    // This is where the email will be sent TO
+    var email = "krushnajawale2522006@gmail.com"; 
+    var message = document.getElementById("uMessage").value;
 
-            // Construct the URL
-            var subject = encodeURIComponent("Hello " + name);
-            var body = encodeURIComponent(message);
-            var link = "mailto:" + email + "?subject=" + subject + "&body=" + body;
+    // 1. Construct the Gmail Web URL
+    // 'view=cm' means Compose Mode
+    // 'fs=1' means Full Screen
+    // 'to', 'su' (subject), and 'body' are the parameters
+    var subject = encodeURIComponent("Hello " + name);
+    var body = encodeURIComponent(message);
+    
+    var gmailLink = "https://mail.google.com/mail/?view=cm&fs=1&to=" + email + "&su=" + subject + "&body=" + body;
 
-            // Open the Email App
-            window.location.href = link;
+    // 2. Open in a NEW TAB using '_blank'
+    window.open(gmailLink, '_blank');
 
-            // Show success message
-            const msg = document.getElementById('success-msg');
-            msg.classList.remove('hidden');
-            setTimeout(() => {
-                msg.classList.add('hidden');
-                document.querySelector('form').reset();
-            }, 4000);
-        }
+    // Show success message (Keep your existing logic)
+    const msg = document.getElementById('success-msg');
+    if (msg) {
+        msg.classList.remove('hidden');
+        setTimeout(() => {
+            msg.classList.add('hidden');
+            document.querySelector('form').reset();
+        }, 4000);
+    }
+}
     </script>
 </body>
 </html>
