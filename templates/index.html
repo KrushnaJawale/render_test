@@ -640,11 +640,11 @@
         function showMessage() {
             var name = document.getElementById("uName").value;
             var email = "krushnajawale2522006@gmail.com";
-            var msg = document.getElementById("uMessage").value;
+            var message = document.getElementById("uMessage").value;
 
             // Construct the URL
             var subject = encodeURIComponent("Hello " + name);
-            var body = encodeURIComponent(msg);
+            var body = encodeURIComponent(message);
             var link = "mailto:" + email + "?subject=" + subject + "&body=" + body;
 
             // Open the Email App
